@@ -140,6 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Photo.cpp" />
+    <ClCompile Include="SourceFunc.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Func.h" />
+    <ClInclude Include="Photo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
