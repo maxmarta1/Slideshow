@@ -2,7 +2,7 @@
 #include<vector>
 #include <fstream>
 #include<string>
-#include <cstdlib>
+#include<cstdlib>
 #include <set>
 #include <algorithm>
 #include <ctime>
@@ -168,59 +168,65 @@ int main() {
 		slides.push_back(vertical_slides[i]);
 	}
 
-	vector<vector<Photo*>> population;
-	int population_size = 10;
+	vector<vector<Photo*>>* population = new vector<vector<Photo*>>();
+	int population_size = 100;
 	int init_solution_size = 100;
 	int generations_count = 100;
 	int parents_count = int(population_size * 0.2);
-	while (population.size() < population_size) {
-		population.push_back(generate_random_solution(slides, init_solution_size));
+	for (int c = 0; c < population_size; c++) {
+		(*population).push_back(generate_random_solution(slides, init_solution_size));
 	}
-
 	vector<int> scores;
-	int scores_sum = 0;
+	double scores_sum = 0;
 	for (int i = 0; i < population_size; i++) {
-		scores.push_back(total_score(population[i]));
+		scores.push_back(total_score((*population)[i]));
 		scores_sum += scores[i];
 	}
 
-	for (int i = 0; i < scores.size(); i++) {
-		cout << scores[i] << '\n';
-	}
-	
+	int max_score = 0;
 	for (int i = 0; i < generations_count; i++) {
+		vector<vector<Photo*>>* new_generation = new vector<vector<Photo*>>();
 		vector<vector<Photo*>*> parents;
 		vector<double> F(population_size,0);
-		vector<vector<Photo*>> new_generation(population_size, vector<Photo*>());
+		
 		F[0] = scores[0] / scores_sum;
+		
 		for (int j = 1; j < population_size; j++) {
 			F[j] = F[j - 1] + scores[j] / scores_sum;
 		}
+		
 		for (int j = 0; j < parents_count; j++) {
-			double pr = rand();
+			double pr = double(rand()) / RAND_MAX;
 			int p = 0;
 			while (F[p] < pr) {
 				p++;
 			}
-			parents.push_back(&population[p]);
+			parents.push_back(&(*population)[p]);
 		}
+
 		for (int j = 0; j < population_size; j++) {
 			int p1 = duel(parents);
 			int p2 = duel(parents);
 			int cross = rand() % min((*parents[p1]).size(), (*parents[p2]).size());
+			(*new_generation).push_back(vector<Photo*>());
 			for (int k = 0; k < cross; k++) {
-				new_generation[j].push_back((*parents[p1])[k]);
+				(*new_generation)[j].push_back((*parents[p1])[k]);
 			}
 			for (int k = cross; k < (*parents[p2]).size(); k++) {
-				new_generation[j].push_back((*parents[p2])[k]);
+				(*new_generation)[j].push_back((*parents[p2])[k]);
 			}
-			remove_same_photos(new_generation[j]);
-
+			remove_same_photos((*new_generation)[j]);
+			
+		}
+		scores_sum = 0;
+		population = new_generation;
+		for (int k = 0; k < population_size; k++) {
+			scores[k]=total_score((*population)[k]);
+			if (scores[k] > max_score) max_score = scores[k];
+			scores_sum += scores[k];
 		}
 		
-
-		
-
+		cout << max_score;
 	}
 
 
